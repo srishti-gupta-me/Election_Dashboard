@@ -10,7 +10,6 @@ from PIL import Image
 import streamlit.components.v1 as components
 import base64
 import geopandas as gpd
-import matplotlib.pyplot as plt
 
 
 favicon_image = Image.open('ashoka.jpeg')
