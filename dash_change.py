@@ -9,6 +9,9 @@ import math
 from PIL import Image
 import streamlit.components.v1 as components
 import base64
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
 
 favicon_image = Image.open('ashoka.jpeg')
 st.set_page_config(page_title="Previous Election Insights", page_icon=favicon_image, layout="wide")
@@ -150,7 +153,7 @@ linkers=""" <style>
 <div class="grid-container">
  <div class="grid-item"><a href=#linkto_nota><button class="button-css">NOTA</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Contesting Parties</button></a></div>
- <div class="grid-item"><a href=#linkto_party><button class="button-css">Voter Turnout</button></a></div>
+ <div class="grid-item"><a href=#linkto_turnout><button class="button-css">Voter Turnout</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Female Voter Turnout</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Male Voter Turnout</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Constituencies</button></a></div>
@@ -178,6 +181,8 @@ def bar_chart(df,x_var,y_var, title="", x_axis_title="",y_axis_title=""):
     )
 
     fig.update_layout(
+        
+        margin=dict(l=0, r=0, t=100, b=0),
         autosize=False,
         height=500,
         title={
@@ -185,7 +190,7 @@ def bar_chart(df,x_var,y_var, title="", x_axis_title="",y_axis_title=""):
         'y':0.9,
         'x':0.5,
         'xanchor':'center',
-        'yanchor':'top'}
+        'yanchor':'bottom'}
     )
 
     fig.update_xaxes(
@@ -206,23 +211,39 @@ def bar_chart(df,x_var,y_var, title="", x_axis_title="",y_axis_title=""):
     )
 
 #NOTA
-st.markdown("<div id='linkto_nota'>sa</div>", unsafe_allow_html=True)   
+st.markdown("<div id='linkto_nota'></div>", unsafe_allow_html=True)   
  
 nota_container=st.container()
-nota_1,nota_2, nota_3=nota_container.columns([3,1,3])
+nota_container.subheader('NOTA Percentage')
+nota_1,nota_2, nota_3=nota_container.columns([2.5,0.5,2.5])
+
+
+
+nota_2.markdown("""
+<style>
+.vl {
+  border-left: 0.1vw solid grey;
+  margin-left: 3vw;
+  height:80vh;
+}
+</style>
+<div class="vl"></div>
+""", unsafe_allow_html=True)
+
+
 
 read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
 data = read_and_cache_csv('./nota.csv', nrows=100000)
 
-nota_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Nota_Percentage,"Nota Vote","State","Percentage"), use_container_width=True)
+nota_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Nota_Percentage,"","State","Percentage"), use_container_width=True)
 
-nota_3.image('./geo.png')
+#nota_3.image('./geo.png')
 
 st.markdown("""<hr/>""", unsafe_allow_html=True)
 
 #Parties
 
-st.markdown("<div id='linkto_party'>pa</div>", unsafe_allow_html=True)   
+st.markdown("<div id='linkto_party'></div>", unsafe_allow_html=True)   
  
 party_container=st.container()
 party_1,party_2, party_3=party_container.columns([3,1,3])
@@ -261,4 +282,42 @@ div.stButton > button:first-child {
 </style>""", unsafe_allow_html=True)
 
 
+# set the filepath and load in a shapefile
+fp = "./maps-master/States/Admin2.shp"
+map_df = gpd.read_file(fp)
+nota= pd.read_csv("temp.csv")
+merged = map_df.merge(nota, how='left', on="ST_NM")
 
+# set the value column that will be visualised
+variable = 'Value'
+# set the range for the choropleth values
+vmin, vmax = 0, 100
+
+# create figure and axes for Matplotlib
+fig, ax = plt.subplots(1, figsize=(30, 10))
+# remove the axis
+ax.axis('off')
+
+
+# Create colorbar legend
+sm = plt.cm.ScalarMappable(cmap='Blues', norm=plt.Normalize(vmin=vmin, vmax=vmax))
+# empty array for the data range
+sm.set_array([]) # or alternatively sm._A = []. Not sure why this step is necessary, but many recommends it
+# add the colorbar to the figure
+# fig.colorbar(sm)
+             
+# create map
+merged.plot(column=variable, cmap='Blues', linewidth=0.8, ax=ax, edgecolor='0.8')
+
+# Add Labels
+merged['coords'] = merged['geometry'].apply(lambda x: x.representative_point().coords[:])
+merged['coords'] = [coords[0] for coords in merged['coords']]
+
+states=['Manipur','Punjab','Uttarakhand','Goa','Uttar Pradesh']
+
+for idx, row in merged.iterrows():
+    
+    if row['ST_NM'] in states:
+        plt.annotate(text=row['Value'], xy=row['coords'],horizontalalignment='center')
+
+nota_3.pyplot(fig)

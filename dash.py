@@ -101,7 +101,7 @@ position: absolute;
 <img id="logo" src="https://github.com/srishti-gupta-me/Election_Dashboard/blob/main/logo.png?raw=true"/>
   
 <div class="grid-container">
- <div class="grid-item"><a href="#linkto_nota">NOTA</a></div>
+ <div class="grid-item">NOTA</div>
  <div class="grid-item">Contesting Parties</div>
  <div class="grid-item">Voter Turnout</div>
  <div class="grid-item">Female Voter Turnout</div>
