@@ -43,7 +43,6 @@ components.html("""<html>
 <style>
 
 body {
-  height: 800px;  
   background-color: white;
 } 
 
@@ -100,15 +99,68 @@ bg=Image.open(r'./initial_bg.png')
 with landing_con_2:
     st.image(bg, use_column_width='always')  
 
-original_title = '<p style="font-family:Arial; font-size: 1vw; margin-top: 15vh;">Click on any of the buttons below to see what the numbers looked like in the last round of elections for the poll bound states of Punjab, Uttarakhand, Uttar Pradesh, Manipur and Goa.</p>'
+original_title = '<p style="font-family:Arial; font-size: 1vw; margin-top: 15vh;">Click on any of the links below to see what the numbers looked like in the last round of elections for the poll bound states of Punjab, Uttarakhand, Uttar Pradesh, Manipur and Goa.</p>'
 
 landing_con_3.markdown(original_title, unsafe_allow_html=True)
+
 
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
 local_css("style.css")
+
+
+linkers=""" <style>  
+  a {
+   justify-content: center;
+  align-items: center;
+  }
+  
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  margin-left:0vw;
+  margin-right:0vw;
+  margin-top:5vh;
+  position: relative;
+  text-align: center;
+  grid-gap: 2vh 1vw;
+}
+
+.grid-item {
+  background-color: rgba(255, 255, 255, 1);
+  border: 1px solid rgba(0, 0, 0, 0);
+  font-size: 1vw;
+   
+}
+
+.button-css {
+
+  padding: 0px 10px;
+  background-color: rgba(255, 218, 88, 1);;
+  color: #000;
+  height:8vh;
+  width:8vw;
+  border-radius: 10px;
+  text-align: center;
+  
+}</style>
+
+<div class="grid-container">
+ <div class="grid-item"><a href=#linkto_nota><button class="button-css">NOTA</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Contesting Parties</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Voter Turnout</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Female Voter Turnout</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Male Voter Turnout</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Constituencies</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Women Winners</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Newcomers</button></a></div>
+</div>
+
+
+"""
+landing_con_3.markdown(linkers, unsafe_allow_html=True)
 
 
 
@@ -207,9 +259,6 @@ div.stButton > button:first-child {
     background-color: rgb(255, 255, 0);
 }
 </style>""", unsafe_allow_html=True)
-
-
-st.button('x')
 
 
 
