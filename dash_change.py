@@ -74,6 +74,8 @@ position: absolute;
   margin-left:85vw;
   margin-right:auto;
   position: absolute;
+  width:5vw;
+  height: auto;
 }
 
 
@@ -152,7 +154,7 @@ linkers=""" <style>
 <div class="grid-container">
  <div class="grid-item"><a href=#linkto_nota><button class="button-css">NOTA</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Contesting Parties</button></a></div>
- <div class="grid-item"><a href=#linkto_turnout><button class="button-css">Voter Turnout</button></a></div>
+ <div class="grid-item"><a href=#linkto_party><button class="button-css">Voter Turnout</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Female Voter Turnout</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Male Voter Turnout</button></a></div>
  <div class="grid-item"><a href=#linkto_party><button class="button-css">Constituencies</button></a></div>
@@ -181,8 +183,9 @@ def bar_chart(df,x_var,y_var, title="", x_axis_title="",y_axis_title=""):
 
     fig.update_layout(
         
-        margin=dict(l=0, r=0, t=100, b=0),
+        margin=dict(l=0, r=20, t=100, b=0),
         autosize=False,
+        width=200,
         height=500,
         title={
         'text': title,
@@ -214,7 +217,7 @@ st.markdown("<div id='linkto_nota'></div>", unsafe_allow_html=True)
  
 nota_container=st.container()
 nota_container.subheader('NOTA Percentage')
-nota_1,nota_2, nota_3=nota_container.columns([2.5,0.5,2.5])
+nota_1,nota_2, nota_3=nota_container.columns([2,0.5,2.5])
 
 
 
@@ -234,7 +237,7 @@ nota_2.markdown("""
 read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
 data = read_and_cache_csv('./nota.csv', nrows=100000)
 
-nota_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Nota_Percentage,"","State","Percentage"), use_container_width=True)
+nota_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Value,"","State","Percentage"), use_container_width=True)
 
 #nota_3.image('./geo.png')
 
@@ -245,78 +248,86 @@ st.markdown("""<hr/>""", unsafe_allow_html=True)
 st.markdown("<div id='linkto_party'></div>", unsafe_allow_html=True)   
  
 party_container=st.container()
-party_1,party_2, party_3=party_container.columns([3,1,3])
+party_container.subheader('Contesting Parties')
+
+party_1,party_2, party_3=party_container.columns([2,0.5,2.5])
 
 read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
 data = read_and_cache_csv('./nota.csv', nrows=100000)
 
-party_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Nota_Percentage,"Contesting Parties","State","Percentage"), use_container_width=True)
+party_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Value,"","State","Percentage"), use_container_width=True)
 
-party_3.image('./geo.png')
 
 st.markdown("""<hr/>""", unsafe_allow_html=True)
 
 
-#Voter Turnout
 
-st.markdown("<div id='linkto_turnout'></div>", unsafe_allow_html=True)   
- 
-turnout_container=st.container()
-turnout_1,turnout_2, turnout_3=turnout_container.columns([3,1,3])
-
-read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
-data = read_and_cache_csv('./nota.csv', nrows=100000)
-
-turnout_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Nota_Percentage,"Turnout","State","Percentage"), use_container_width=True)
-
-turnout_3.image('./geo.png')
-
-st.markdown("""<hr/>""", unsafe_allow_html=True)
-
-m = st.markdown("""
+party_2.markdown("""
 <style>
-div.stButton > button:first-child {
-    background-color: rgb(255, 255, 0);
+.vl {
+  border-left: 0.1vw solid grey;
+  margin-left: 3vw;
+  height:80vh;
 }
-</style>""", unsafe_allow_html=True)
+</style>
+<div class="vl"></div>
+""", unsafe_allow_html=True)
 
 
-# set the filepath and load in a shapefile
-fp = "./maps-master/States/Admin2.shp"
-map_df = gpd.read_file(fp)
-nota= pd.read_csv("temp.csv")
-merged = map_df.merge(nota, how='left', on="ST_NM")
+def map_plot(file_link, container_name, color):
+    map_df = gpd.read_file("./maps-master/States/Admin2.shp")
+    map_value= pd.read_csv(file_link)
+    merged = map_df.merge(map_value, how='left', left_on="ST_NM",right_on="State")
+    merged.drop(['State'], axis=1, inplace=True)
+    merged['Value']=merged['Value'].mask(merged['Value'].isnull()==True,-1)
 
-# set the value column that will be visualised
-variable = 'Value'
-# set the range for the choropleth values
-vmin, vmax = 0, 100
+    # set the value column that will be visualised
+    variable = 'Value'
+    # set the range for the choropleth values
+    vmin, vmax = 0, 100
 
-# create figure and axes for Matplotlib
-fig, ax = plt.subplots(1, figsize=(30, 10))
-# remove the axis
-ax.axis('off')
+    # create figure and axes for Matplotlib
+    fig, ax = plt.subplots(1, figsize=(30, 10))
+    # remove the axis
+    ax.axis('off')
 
 
-# Create colorbar legend
-sm = plt.cm.ScalarMappable(cmap='Blues', norm=plt.Normalize(vmin=vmin, vmax=vmax))
-# empty array for the data range
-sm.set_array([]) # or alternatively sm._A = []. Not sure why this step is necessary, but many recommends it
-# add the colorbar to the figure
-# fig.colorbar(sm)
-             
-# create map
-merged.plot(column=variable, cmap='Blues', linewidth=0.8, ax=ax, edgecolor='0.8')
+    # Create colorbar legend
+    sm = plt.cm.ScalarMappable(cmap=color, norm=plt.Normalize(vmin=vmin, vmax=vmax))
+    # empty array for the data range
+    sm.set_array([]) # or alternatively sm._A = []. Not sure why this step is necessary, but many recommends it
+    # add the colorbar to the figure
+    # fig.colorbar(sm)
 
-# Add Labels
-merged['coords'] = merged['geometry'].apply(lambda x: x.representative_point().coords[:])
-merged['coords'] = [coords[0] for coords in merged['coords']]
+    # create map
+    merged.plot(column=variable, cmap=color, linewidth=0.8, ax=ax, edgecolor='0.8')
 
-states=['Manipur','Punjab','Uttarakhand','Goa','Uttar Pradesh']
+    # Add Labels
+    merged['coords'] = merged['geometry'].apply(lambda x: x.representative_point().coords[:])
+    merged['coords'] = [coords[0] for coords in merged['coords']]
 
-for idx, row in merged.iterrows():
+    states=['Manipur','Punjab','Uttarakhand','Goa','Uttar Pradesh']
+
+    for idx, row in merged.iterrows():
+
+        if row['ST_NM'] in states:
+            plt.annotate(text=row['Value'], xy=row['coords'],horizontalalignment='center')
+
+    container_name.pyplot(fig)
     
-    if row['ST_NM'] in states:
-        plt.annotate(text=row['Value'], xy=row['coords'],horizontalalignment='center')
+map_plot("nota.csv",nota_3,"Blues")
+map_plot("party.csv",party_3,"Oranges")
 
-nota_3.pyplot(fig)
+
+assembly_container=st.container()
+assembly_container.subheader('General Elections with Assembly Numbers')
+
+ass_1,ass_2=assembly_container.columns([1,1])
+ass_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
+ass_data = ass_csv('./Assembly_Chart.csv', nrows=100000)
+
+import plotly.express as px
+fig = px.sunburst(ass_data, path=['State_Name','Assembly_No','Year'], values='Count',width=600, height=600)
+
+ass_1.plotly_chart(fig, use_container_width=True)
+
