@@ -215,108 +215,108 @@ def bar_chart(df,x_var,y_var, title="", x_axis_title="",y_axis_title=""):
 #NOTA
 st.markdown("<div id='linkto_nota'></div>", unsafe_allow_html=True)   
  
-nota_container=st.container()
-nota_container.subheader('NOTA Percentage')
-nota_1,nota_2, nota_3=nota_container.columns([2,0.5,2.5])
+# nota_container=st.container()
+# nota_container.subheader('NOTA Percentage')
+# nota_1,nota_2, nota_3=nota_container.columns([2,0.5,2.5])
 
 
 
-nota_2.markdown("""
-<style>
-.vl {
-  border-left: 0.1vw solid grey;
-  margin-left: 3vw;
-  height:80vh;
-}
-</style>
-<div class="vl"></div>
-""", unsafe_allow_html=True)
+# nota_2.markdown("""
+# <style>
+# .vl {
+#   border-left: 0.1vw solid grey;
+#   margin-left: 3vw;
+#   height:80vh;
+# }
+# </style>
+# <div class="vl"></div>
+# """, unsafe_allow_html=True)
 
 
 
-read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
-data = read_and_cache_csv('./nota.csv', nrows=100000)
+# read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
+# data = read_and_cache_csv('./nota.csv', nrows=100000)
 
-nota_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Value,"","State","Percentage"), use_container_width=True)
+# nota_1.plotly_chart(bar_chart(data.astype(str), data['State'],data['Value'],"","State","Percentage"), use_container_width=True)
 
-#nota_3.image('./geo.png')
+# #nota_3.image('./geo.png')
 
-st.markdown("""<hr/>""", unsafe_allow_html=True)
+# st.markdown("""<hr/>""", unsafe_allow_html=True)
 
-#Parties
+# #Parties
 
-st.markdown("<div id='linkto_party'></div>", unsafe_allow_html=True)   
+# st.markdown("<div id='linkto_party'></div>", unsafe_allow_html=True)   
  
-party_container=st.container()
-party_container.subheader('Contesting Parties')
+# party_container=st.container()
+# party_container.subheader('Contesting Parties')
 
-party_1,party_2, party_3=party_container.columns([2,0.5,2.5])
+# party_1,party_2, party_3=party_container.columns([2,0.5,2.5])
 
-read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
-data = read_and_cache_csv('./nota.csv', nrows=100000)
+# read_and_cache_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
+# data = read_and_cache_csv('./nota.csv', nrows=100000)
 
-party_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Value,"","State","Percentage"), use_container_width=True)
-
-
-st.markdown("""<hr/>""", unsafe_allow_html=True)
+# party_1.plotly_chart(bar_chart(data.astype(str), data.State,data.Value,"","State","Percentage"), use_container_width=True)
 
 
-
-party_2.markdown("""
-<style>
-.vl {
-  border-left: 0.1vw solid grey;
-  margin-left: 3vw;
-  height:80vh;
-}
-</style>
-<div class="vl"></div>
-""", unsafe_allow_html=True)
+# st.markdown("""<hr/>""", unsafe_allow_html=True)
 
 
-def map_plot(file_link, container_name, color):
-    map_df = gpd.read_file("./maps-master/States/Admin2.shp")
-    map_value= pd.read_csv(file_link)
-    merged = map_df.merge(map_value, how='left', left_on="ST_NM",right_on="State")
-    merged.drop(['State'], axis=1, inplace=True)
-    merged['Value']=merged['Value'].mask(merged['Value'].isnull()==True,-1)
 
-    # set the value column that will be visualised
-    variable = 'Value'
-    # set the range for the choropleth values
-    vmin, vmax = 0, 100
-
-    # create figure and axes for Matplotlib
-    fig, ax = plt.subplots(1, figsize=(30, 10))
-    # remove the axis
-    ax.axis('off')
+# party_2.markdown("""
+# <style>
+# .vl {
+#   border-left: 0.1vw solid grey;
+#   margin-left: 3vw;
+#   height:80vh;
+# }
+# </style>
+# <div class="vl"></div>
+# """, unsafe_allow_html=True)
 
 
-    # Create colorbar legend
-    sm = plt.cm.ScalarMappable(cmap=color, norm=plt.Normalize(vmin=vmin, vmax=vmax))
-    # empty array for the data range
-    sm.set_array([]) # or alternatively sm._A = []. Not sure why this step is necessary, but many recommends it
-    # add the colorbar to the figure
-    # fig.colorbar(sm)
+# def map_plot(file_link, container_name, color):
+#     map_df = gpd.read_file("./maps-master/States/Admin2.shp")
+#     map_value= pd.read_csv(file_link)
+#     merged = map_df.merge(map_value, how='left', left_on="ST_NM",right_on="State")
+#     merged.drop(['State'], axis=1, inplace=True)
+#     merged['Value']=merged['Value'].mask(merged['Value'].isnull()==True,-1)
 
-    # create map
-    merged.plot(column=variable, cmap=color, linewidth=0.8, ax=ax, edgecolor='0.8')
+#     # set the value column that will be visualised
+#     variable = 'Value'
+#     # set the range for the choropleth values
+#     vmin, vmax = 0, 100
 
-    # Add Labels
-    merged['coords'] = merged['geometry'].apply(lambda x: x.representative_point().coords[:])
-    merged['coords'] = [coords[0] for coords in merged['coords']]
+#     # create figure and axes for Matplotlib
+#     fig, ax = plt.subplots(1, figsize=(30, 10))
+#     # remove the axis
+#     ax.axis('off')
 
-    states=['Manipur','Punjab','Uttarakhand','Goa','Uttar Pradesh']
 
-    for idx, row in merged.iterrows():
+#     # Create colorbar legend
+#     sm = plt.cm.ScalarMappable(cmap=color, norm=plt.Normalize(vmin=vmin, vmax=vmax))
+#     # empty array for the data range
+#     sm.set_array([]) # or alternatively sm._A = []. Not sure why this step is necessary, but many recommends it
+#     # add the colorbar to the figure
+#     # fig.colorbar(sm)
 
-        if row['ST_NM'] in states:
-            plt.annotate(text=row['Value'], xy=row['coords'],horizontalalignment='center')
+#     # create map
+#     merged.plot(column=variable, cmap=color, linewidth=0.8, ax=ax, edgecolor='0.8')
 
-    container_name.pyplot(fig)
+#     # Add Labels
+#     merged['coords'] = merged['geometry'].apply(lambda x: x.representative_point().coords[:])
+#     merged['coords'] = [coords[0] for coords in merged['coords']]
+
+#     states=['Manipur','Punjab','Uttarakhand','Goa','Uttar Pradesh']
+
+#     for idx, row in merged.iterrows():
+
+#         if row['ST_NM'] in states:
+#             plt.annotate(text=row['Value'], xy=row['coords'],horizontalalignment='center')
+
+#     container_name.pyplot(fig)
     
-map_plot("nota.csv",nota_3,"Blues")
-map_plot("party.csv",party_3,"Oranges")
+# map_plot("nota.csv",nota_3,"Blues")
+# map_plot("party.csv",party_3,"Oranges")
 
 
 assembly_container=st.container()
