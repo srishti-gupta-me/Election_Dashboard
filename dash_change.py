@@ -326,7 +326,7 @@ ass_1,ass_2=assembly_container.columns([1,1])
 ass_csv = st.cache(suppress_st_warning=True)(pd.read_csv)
 ass_data = ass_csv('./Assembly_Chart.csv', nrows=100000)
 
-import plotly.express as px
+
 fig = px.sunburst(ass_data, path=['State_Name','Assembly_No','Year'], values='Count',width=600, height=600)
 
 ass_1.plotly_chart(fig, use_container_width=True)
